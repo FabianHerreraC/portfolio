@@ -1,0 +1,588 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Circuit Board Texture</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      width: 100%; height: 100%;
+      background: #ffffff;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .wrapper {
+      position: relative;
+      display: inline-block;
+    }
+    canvas {
+      display: block;
+      max-width: calc(100vw - 80px);
+      max-height: calc(100vh - 80px);
+      cursor: crosshair;
+      box-shadow: none;
+    }
+    .title {
+      position: absolute;
+      top: -22px;
+      left: 0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10px;
+      color: #ff001e;
+      letter-spacing: 0.06em;
+      text-transform: uppercase;
+      white-space: nowrap;
+      pointer-events: none;
+      user-select: none;
+    }
+
+    /* ── Texto flotante en el espacio blanco ──────────────── */
+    .card {
+      position: absolute;
+      background: transparent;
+      border: none;
+      box-shadow: none;
+      padding: 16px 18px 14px;
+      z-index: 20;
+      animation: textFade 0.5s ease-out both;
+      pointer-events: none;
+    }
+    .card-body {
+      font-size: 10.5px;
+      line-height: 1.78;
+      color: #ff001e;
+      margin-bottom: 12px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+    }
+    .card-sep {
+      border: none;
+      border-top: 1px solid #ff001e;
+      margin-bottom: 10px;
+    }
+    .card-label {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10px;
+      color: #ff001e;
+      letter-spacing: 0.10em;
+    }
+    @keyframes textFade {
+      0%   { opacity: 0; }
+      100% { opacity: 1; }
+    }
+    .card-btn {
+      display: inline-block;
+      margin-top: 10px;
+      border: 1px solid #ff001e;
+      color: #ff001e;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 9px;
+      letter-spacing: 0.10em;
+      padding: 5px 11px;
+      text-decoration: none;
+      text-transform: uppercase;
+      pointer-events: all;
+      cursor: pointer;
+      transition: background 0.15s, color 0.15s;
+    }
+    .card-btn:hover { background: #ff001e; color: #ffffff; }
+    .card-btn-play {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 34px; height: 34px;
+      border-radius: 50%;
+      border: 1.5px solid #ff001e;
+      color: #ff001e;
+      font-size: 13px;
+      text-decoration: none;
+      pointer-events: all;
+      cursor: pointer;
+      margin-top: 10px;
+      transition: background 0.15s, color 0.15s;
+    }
+    .card-btn-play:hover { background: #ff001e; color: #ffffff; }
+    .card-form {
+      display: flex;
+      gap: 6px;
+      margin-top: 10px;
+      pointer-events: all;
+    }
+    .card-input {
+      flex: 1;
+      border: 1px solid #ff001e;
+      background: transparent;
+      color: #ff001e;
+      font-size: 9px;
+      font-family: 'Segoe UI', Arial, sans-serif;
+      padding: 5px 8px;
+      outline: none;
+    }
+    .card-input::placeholder { color: #ff001e; opacity: 0.5; }
+    .card-send {
+      border: 1px solid #ff001e;
+      background: transparent;
+      color: #ff001e;
+      font-size: 9px;
+      font-family: 'Courier New', Courier, monospace;
+      letter-spacing: 0.10em;
+      text-transform: uppercase;
+      padding: 5px 10px;
+      cursor: pointer;
+      pointer-events: all;
+      transition: background 0.15s, color 0.15s;
+    }
+    .card-send:hover { background: #ff001e; color: #ffffff; }
+    .card-thanks {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10px;
+      color: #ff001e;
+      letter-spacing: 0.10em;
+      margin-top: 10px;
+      animation: textFade 0.4s ease-out both;
+    }
+  </style>
+</head>
+<body>
+
+<div class="wrapper">
+  <span class="title">Fabian Herrera</span>
+  <canvas id="c"></canvas>
+</div>
+
+<script>
+const W = 900, H = 1120;
+
+const cvs     = document.getElementById('c');
+cvs.width     = W; cvs.height = H;
+const mainCtx = cvs.getContext('2d');
+
+const off    = document.createElement('canvas');
+off.width    = W; off.height = H;
+const offCtx = off.getContext('2d');
+let ctx      = offCtx;
+
+// ─── Mouse hover ─────────────────────────────────────────────
+let mx = -2000, my = -2000, tmx = -2000, tmy = -2000, hoverAmp = 0;
+
+// ─── Clear wave ──────────────────────────────────────────────
+// { ox, oy, rx, ry, rw, rh, t, maxR }
+let clearAnim = null;
+
+// ─── Cards ───────────────────────────────────────────────────
+let activeCard = null;
+let cardIdx    = 0;
+
+const CARDS_DATA = [
+  { html: `<p class="card-body">¡Hola!</p>` },
+  { html: `<p class="card-body">Este es el portafolio de Fabian Herrera.</p>` },
+  { html: `<p class="card-body">Si quieres ver mi trabajo ve a</p>
+           <a class="card-btn-play" href="https://www.instagram.com/fabianh3d/" target="_blank" title="Instagram">&#9654;</a>` },
+  { html: `<p class="card-body">Si quieres ver mi currículum:</p>
+           <a class="card-btn" href="https://www.linkedin.com/in/fabian-herrera-4253654a/" target="_blank">LinkedIn</a>` },
+  { html: `<p class="card-body">Ir al manifiesto</p>
+           <a class="card-btn" href="manifiesto.html" target="_blank">→ Manifiesto</a>` },
+  { html: `<p class="card-body">¡Gracias!</p>` },
+  { html: `<p class="card-body">eso es todo</p>` },
+  { html: `<p class="card-body">no hay más</p>` },
+  { html: `<p class="card-body">¿En qué te puedo ayudar?</p>
+           <div class="card-form"><input class="card-input" type="text" placeholder="escribe algo…"><button class="card-send" type="button" onclick="handleSend(this)">enviar</button></div>
+           <p class="card-thanks" style="display:none">gracias</p>` },
+];
+
+// ─── Paleta ──────────────────────────────────────────────────
+const P = {
+  bg:     '#ffffff',
+  main:   ['#ff001e','#ff001e','#ff001e','#ff001e','#ff001e','#ff001e'],
+  accent: ['#ff001e','#ff001e','#ff001e','#ff001e'],
+  dark:   ['#ff001e','#ff001e','#ff001e'],
+  light:  '#ff001e',
+};
+
+// ─── Helpers ─────────────────────────────────────────────────
+function r(a, b)   { return Math.random() * (b - a) + a; }
+function ri(a, b)  { return Math.floor(r(a, b + 1)); }
+function pick(arr) { return arr[ri(0, arr.length - 1)]; }
+function clamp(v, mn, mx2) { return Math.max(mn, Math.min(mx2, v)); }
+
+function rr(x, y, w, h, rad) {
+  const r2 = Math.min(Math.abs(rad), Math.abs(w)/2, Math.abs(h)/2);
+  ctx.beginPath();
+  ctx.moveTo(x + r2, y);
+  ctx.lineTo(x + w - r2, y);
+  ctx.arcTo(x+w, y,   x+w, y+h, r2);
+  ctx.arcTo(x+w, y+h, x,   y+h, r2);
+  ctx.arcTo(x,   y+h, x,   y,   r2);
+  ctx.arcTo(x,   y,   x+w, y,   r2);
+  ctx.closePath();
+}
+
+// ─── BSP ─────────────────────────────────────────────────────
+function bsp(rect, minW, minH, maxD, d) {
+  d = d || 0;
+  const { x, y, w, h } = rect;
+  if (d >= maxD) return [rect];
+  const canH = h >= minH * 2, canV = w >= minW * 2;
+  if (!canH && !canV) return [rect];
+  const doH = canH && (!canV || (h >= w ? r(0,1) < 0.70 : r(0,1) < 0.40));
+  if (doH) {
+    const sy = y + h * r(0.18, 0.82);
+    return [
+      ...bsp({x, y,    w, h: sy - y      }, minW, minH, maxD, d+1),
+      ...bsp({x, y: sy, w, h: y+h - sy   }, minW, minH, maxD, d+1),
+    ];
+  } else {
+    const sx = x + w * r(0.18, 0.82);
+    return [
+      ...bsp({x,     y, w: sx - x,     h}, minW, minH, maxD, d+1),
+      ...bsp({x: sx, y, w: x+w - sx,   h}, minW, minH, maxD, d+1),
+    ];
+  }
+}
+
+// ─── Patrones ────────────────────────────────────────────────
+function pHLines(x, y, w, h, col, sc) {
+  sc = sc||1;
+  const sp = clamp(r(3,8)*sc, 2, 20), lw = clamp(sp*r(0.35,0.6), 0.5, 6);
+  ctx.strokeStyle = col; ctx.lineWidth = lw;
+  for (let cy = y+sp/2; cy < y+h; cy += sp) {
+    ctx.beginPath(); ctx.moveTo(x, cy); ctx.lineTo(x+w, cy); ctx.stroke();
+  }
+}
+function pVLines(x, y, w, h, col, sc) {
+  sc = sc||1;
+  const sp = clamp(r(3,8)*sc, 2, 20), lw = clamp(sp*r(0.35,0.6), 0.5, 6);
+  ctx.strokeStyle = col; ctx.lineWidth = lw;
+  for (let cx = x+sp/2; cx < x+w; cx += sp) {
+    ctx.beginPath(); ctx.moveTo(cx, y); ctx.lineTo(cx, y+h); ctx.stroke();
+  }
+}
+function pPillsH(x, y, w, h, col, sc) {
+  sc = sc||1;
+  const ph = clamp(r(3,7)*sc, 3, 14), pw = clamp(ph*r(2.2,4), 6, 40);
+  const gx = clamp(ph*r(0.3,0.8), 1, 8), gy = clamp(ph*r(0.3,0.7), 1, 6);
+  ctx.fillStyle = col;
+  for (let cy = y+gy; cy+ph <= y+h; cy += ph+gy)
+    for (let cx = x+gx; cx+pw <= x+w; cx += pw+gx)
+      { rr(cx, cy, pw, ph, ph/2); ctx.fill(); }
+}
+function pPillsV(x, y, w, h, col, sc) {
+  sc = sc||1;
+  const pw = clamp(r(3,6)*sc, 3, 10), ph = clamp(pw*r(2.5,5.5), 8, 40);
+  const gx = clamp(pw*r(0.3,0.7), 1, 6), gy = clamp(pw*r(0.3,0.8), 1, 8);
+  ctx.fillStyle = col;
+  for (let cx = x+gx; cx+pw <= x+w; cx += pw+gx)
+    for (let cy = y+gy; cy+ph <= y+h; cy += ph+gy)
+      { rr(cx, cy, pw, ph, pw/2); ctx.fill(); }
+}
+function pDots(x, y, w, h, col, sc) {
+  sc = sc||1;
+  const sp = clamp(r(5,12)*sc, 3, 20), rad = clamp(sp*r(0.22,0.38), 1, 6);
+  ctx.fillStyle = col;
+  for (let cy = y+sp/2; cy < y+h; cy += sp)
+    for (let cx = x+sp/2; cx < x+w; cx += sp)
+      { ctx.beginPath(); ctx.arc(cx, cy, rad, 0, Math.PI*2); ctx.fill(); }
+}
+function pPins(x, y, w, h, col, sc) {
+  sc = sc||1;
+  const pw = clamp(r(2,5)*sc, 2, 8), gap = clamp(pw*r(0.5,1.5), 1, 8);
+  ctx.fillStyle = col;
+  for (let cx = x+gap/2; cx+pw <= x+w; cx += pw+gap) {
+    const ph2 = h*r(0.45,0.95), py = y+(h-ph2)*r(0,0.6);
+    ctx.fillRect(cx, py, pw, ph2);
+  }
+}
+function pHBars(x, y, w, h, col, sc) {
+  sc = sc||1;
+  const bh = clamp(r(2,7)*sc, 2, 12), gy = clamp(bh*r(0.4,1.2), 1, 8);
+  ctx.fillStyle = col;
+  for (let cy = y+gy; cy+bh <= y+h; cy += bh+gy) {
+    const bw = w*r(0.3,1.0), bx = x+(w-bw)*r(0,1);
+    ctx.fillRect(bx, cy, bw, bh);
+  }
+}
+function pGrid(x, y, w, h, col, sc) {
+  sc = sc||1;
+  const sp = clamp(r(6,16)*sc, 4, 24);
+  ctx.strokeStyle = col; ctx.lineWidth = 0.6;
+  for (let cy = y+sp; cy < y+h; cy += sp) {
+    ctx.beginPath(); ctx.moveTo(x, cy); ctx.lineTo(x+w, cy); ctx.stroke();
+  }
+  for (let cx = x+sp; cx < x+w; cx += sp) {
+    ctx.beginPath(); ctx.moveTo(cx, y); ctx.lineTo(cx, y+h); ctx.stroke();
+  }
+}
+
+const ALL_P = ['hlines','vlines','pillsH','pillsV','dots','pins','hbars','grid'];
+
+function drawZone(zone, sc) {
+  const { x, y, w, h } = zone;
+  const pad = 1.5;
+  const ix = x+pad, iy = y+pad, iw = w-pad*2, ih = h-pad*2;
+  if (iw < 7 || ih < 7) return;
+  const useAccent = Math.random() < 0.11;
+  const col = useAccent ? pick(P.accent) : pick([...P.main, ...P.main, P.light, pick(P.dark)]);
+  const asp  = iw / ih;
+  const pool = asp > 2.8 ? ['hlines','pillsH','hbars','dots','hlines']
+             : asp < 0.38 ? ['vlines','pillsV','pins','dots','vlines']
+             : ALL_P;
+  switch (pick(pool)) {
+    case 'hlines': pHLines(ix,iy,iw,ih,col,sc); break;
+    case 'vlines': pVLines(ix,iy,iw,ih,col,sc); break;
+    case 'pillsH': pPillsH(ix,iy,iw,ih,col,sc); break;
+    case 'pillsV': pPillsV(ix,iy,iw,ih,col,sc); break;
+    case 'dots':   pDots(ix,iy,iw,ih,col,sc);   break;
+    case 'pins':   pPins(ix,iy,iw,ih,col,sc);   break;
+    case 'hbars':  pHBars(ix,iy,iw,ih,col,sc);  break;
+    case 'grid':   pGrid(ix,iy,iw,ih,col,sc);   break;
+  }
+  if (Math.random() < 0.22) {
+    const col2 = Math.random() < 0.4 ? pick(P.accent) : pick(P.main);
+    ctx.globalAlpha = r(0.25, 0.55);
+    Math.random() < 0.5
+      ? pDots(ix,iy,iw,ih,col2,sc*r(0.8,1.4))
+      : pHLines(ix,iy,iw,ih,col2,sc*r(0.8,1.2));
+    ctx.globalAlpha = 1;
+  }
+}
+
+function drawTraces() {
+  for (let i = 0; i < ri(8,20); i++) {
+    const ty2 = r(6,H-6), x1 = r(0,W*0.25), x2 = r(W*0.75,W);
+    const col = Math.random() < 0.25 ? pick(P.accent) : pick([...P.main, pick(P.dark)]);
+    ctx.strokeStyle = col; ctx.lineWidth = r(0.4, 2.5);
+    ctx.beginPath(); ctx.moveTo(x1,ty2); ctx.lineTo(x2,ty2); ctx.stroke();
+    ctx.fillStyle = pick(P.accent);
+    [x1, x2].forEach(vx => {
+      ctx.beginPath(); ctx.arc(vx, ty2, r(1.5,4), 0, Math.PI*2); ctx.fill();
+    });
+  }
+  for (let i = 0; i < ri(3,8); i++) {
+    const tx2 = r(6,W-6), y1 = r(0,H*0.3), y2 = r(H*0.7,H);
+    ctx.strokeStyle = pick([...P.main, pick(P.dark)]);
+    ctx.lineWidth = r(0.4, 1.5);
+    ctx.beginPath(); ctx.moveTo(tx2,y1); ctx.lineTo(tx2,y2); ctx.stroke();
+  }
+}
+
+function drawVias(n) {
+  for (let i = 0; i < n; i++) {
+    ctx.fillStyle = pick(P.accent);
+    ctx.beginPath(); ctx.arc(r(8,W-8), r(8,H-8), r(1.5,4.5), 0, Math.PI*2); ctx.fill();
+  }
+}
+
+// ─── Generar textura en offscreen ────────────────────────────
+function draw() {
+  ctx = offCtx;
+  const sc = 1 / (0.5 + 3 * 0.2);
+  ctx.fillStyle = P.bg;
+  ctx.fillRect(0, 0, W, H);
+  const zones = bsp({x:4, y:4, w:W-8, h:H-8}, 45, 35, 5);
+  zones.forEach(z => drawZone(z, sc));
+  ctx.lineWidth = 0.5;
+  zones.forEach(z => {
+    ctx.strokeStyle = pick(P.dark);
+    ctx.strokeRect(z.x+0.5, z.y+0.5, z.w, z.h);
+  });
+  drawTraces();
+  drawVias(ri(25,70));
+}
+
+// ─── Loop de animación ───────────────────────────────────────
+const TILE    = 18;
+const R_HOVER = 150;
+const MAX_AMP = 6;
+const WAV_AMP = 0.6;
+let   t       = 0;
+
+function render() {
+  requestAnimationFrame(render);
+
+  mx += (tmx - mx) * 0.18;
+  my += (tmy - my) * 0.18;
+  const targetAmp = tmx > -1500 ? 1 : 0;
+  hoverAmp += (targetAmp - hoverAmp) * 0.12;
+  t += 0.008;
+
+  if (clearAnim) clearAnim.t = Math.min(1, clearAnim.t + 0.032);
+
+  const R2 = R_HOVER * R_HOVER;
+  mainCtx.clearRect(0, 0, W, H);
+
+  for (let ty = 0; ty < H; ty += TILE) {
+    for (let tx = 0; tx < W; tx += TILE) {
+      const cx  = tx + TILE * 0.5;
+      const cy  = ty + TILE * 0.5;
+
+      // ── Mouse hover displacement ─────────────────────────
+      const hdx = cx - mx, hdy = cy - my;
+      const hd2 = hdx*hdx + hdy*hdy;
+      const hd  = Math.sqrt(hd2) || 1;
+      const falloff = Math.max(0, 1 - hd2/R2);
+      const push    = MAX_AMP * falloff * hoverAmp;
+      let offX = (hdx/hd)*push + Math.sin(cx*0.022 + ty*0.015 + t) * WAV_AMP;
+      let offY = (hdy/hd)*push + Math.cos(cy*0.022 + tx*0.015 + t*0.85) * WAV_AMP;
+
+      // ── Clear wave ───────────────────────────────────────
+      let skip = false;
+      if (clearAnim) {
+        const wdx   = cx - clearAnim.ox;
+        const wdy   = cy - clearAnim.oy;
+        const wdist = Math.sqrt(wdx*wdx + wdy*wdy) || 1;
+        const waveR = clearAnim.t * clearAnim.maxR * 1.12;
+
+        const inRect = cx > clearAnim.rx && cx < clearAnim.rx + clearAnim.rw
+                    && cy > clearAnim.ry && cy < clearAnim.ry + clearAnim.rh;
+
+        if (inRect && wdist < waveR) {
+          // Tile cleared — skip drawing, white shows through
+          skip = true;
+        }
+
+        // Ripple displacement at wave front (inside and outside rect)
+        const waveDelta = wdist - waveR;
+        if (Math.abs(waveDelta) < TILE * 2.5) {
+          const ripple   = Math.max(0, 1 - Math.abs(waveDelta) / (TILE * 2.5));
+          const rippleAmp = 7 * ripple * Math.max(0, 1 - clearAnim.t * 0.9);
+          offX += (wdx / wdist) * rippleAmp;
+          offY += (wdy / wdist) * rippleAmp;
+        }
+      }
+
+      if (!skip) {
+        const sw = Math.min(TILE, W - tx);
+        const sh = Math.min(TILE, H - ty);
+        mainCtx.drawImage(off, tx, ty, sw, sh, tx+offX, ty+offY, sw, sh);
+      }
+    }
+  }
+}
+
+// ─── Medir altura real del texto ─────────────────────────────
+const CARD_DW = 230;
+
+function measureCardH(html, innerW) {
+  const probe = document.createElement('div');
+  probe.style.cssText = `
+    position:absolute; visibility:hidden; pointer-events:none;
+    width:${innerW}px; font-size:10.5px; line-height:1.78;
+    font-family:'Segoe UI',Arial,sans-serif; padding:0; margin:0;
+  `;
+  probe.innerHTML = html;
+  document.body.appendChild(probe);
+  const h = probe.getBoundingClientRect().height;
+  probe.remove();
+  return Math.ceil(h) + 62;
+}
+
+function openCard(e) {
+  const canvRect = cvs.getBoundingClientRect();
+
+  const dispX = e.clientX - canvRect.left;
+  const dispY = e.clientY - canvRect.top;
+  const dispW = canvRect.width;
+  const dispH = canvRect.height;
+
+  const scaleX = W / dispW;
+  const scaleY = H / dispH;
+  const canvX  = dispX * scaleX;
+  const canvY  = dispY * scaleY;
+
+  const goRight = dispX <= dispW / 2;
+  const goDown  = dispY <= dispH / 2;
+
+  // Altura real del texto del card que va a mostrarse
+  const data    = CARDS_DATA[cardIdx % CARDS_DATA.length];
+  const innerW  = CARD_DW - 36;
+  const CARD_DH = measureCardH(data.html, innerW);
+
+  // Snap al grid de tiles (en display coords)
+  const tileDisp = TILE / scaleX; // tamaño de tile en display px
+  const snapW    = Math.ceil(CARD_DW / tileDisp) * tileDisp;
+  const snapH    = Math.ceil(CARD_DH / tileDisp) * tileDisp;
+
+  // Posición top-left del card en display coords
+  let cDL = goRight ? dispX : dispX - snapW;
+  let cDT = goDown  ? dispY : dispY - snapH;
+
+  cDL = Math.max(4, Math.min(dispW - snapW - 4, cDL));
+  cDT = Math.max(4, Math.min(dispH - snapH - 4, cDT));
+
+  // Rect del card en canvas coords (para el clip de la ola)
+  const cRX = cDL * scaleX, cRY = cDT * scaleY;
+  const cRW = snapW * scaleX, cRH = snapH * scaleY;
+
+  // Radio máximo desde el click hasta la esquina más lejana del rect
+  const maxR = Math.max(
+    Math.hypot(cRX       - canvX, cRY       - canvY),
+    Math.hypot(cRX + cRW - canvX, cRY       - canvY),
+    Math.hypot(cRX       - canvX, cRY + cRH - canvY),
+    Math.hypot(cRX + cRW - canvX, cRY + cRH - canvY),
+  );
+
+  // Cerrar tarjeta previa
+  if (activeCard) { activeCard.remove(); activeCard = null; }
+
+  // Iniciar ola de borrado
+  clearAnim = { ox: canvX, oy: canvY, rx: cRX, ry: cRY, rw: cRW, rh: cRH, t: 0, maxR };
+
+  // avanzar índice DESPUÉS de medir (data ya fue leído arriba)
+  cardIdx++;
+
+  // Construir DOM — el texto flota en el espacio blanco
+  const card = document.createElement('div');
+  card.className = 'card';
+  card.style.left  = cDL + 'px';
+  card.style.top   = cDT + 'px';
+  card.style.width = snapW + 'px';
+
+  card.innerHTML = `${data.html}`;
+
+  // Mostrar texto cuando la ola ya cubrió el área
+  setTimeout(() => {
+    document.querySelector('.wrapper').appendChild(card);
+    activeCard = card;
+  }, 350);
+}
+
+// ─── Eventos ─────────────────────────────────────────────────
+cvs.addEventListener('mousemove', e => {
+  const rect = cvs.getBoundingClientRect();
+  tmx = (e.clientX - rect.left) * (W / rect.width);
+  tmy = (e.clientY - rect.top)  * (H / rect.height);
+});
+cvs.addEventListener('mouseleave', () => { tmx = -2000; tmy = -2000; });
+
+cvs.addEventListener('touchmove', e => {
+  e.preventDefault();
+  const rect  = cvs.getBoundingClientRect();
+  const touch = e.touches[0];
+  tmx = (touch.clientX - rect.left) * (W / rect.width);
+  tmy = (touch.clientY - rect.top)  * (H / rect.height);
+}, { passive: false });
+
+cvs.addEventListener('touchend', e => {
+  // fire click at the last touch position, then reset hover
+  const rect  = cvs.getBoundingClientRect();
+  const touch = e.changedTouches[0];
+  openCard({ clientX: touch.clientX, clientY: touch.clientY });
+  tmx = -2000; tmy = -2000;
+});
+
+cvs.addEventListener('click', openCard);
+
+function handleSend(btn) {
+  const form   = btn.closest('.card-form');
+  const thanks = form.nextElementSibling;
+  form.style.display  = 'none';
+  thanks.style.display = 'block';
+}
+
+// ─── Init ────────────────────────────────────────────────────
+draw();
+render();
+</script>
+</body>
+</html>

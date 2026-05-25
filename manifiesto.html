@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Manifiesto — Fabian Herrera</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    html, body {
+      background: #fff;
+    }
+    body {
+      overflow-x: hidden;
+    }
+    .back {
+      position: fixed;
+      top: 18px;
+      left: 22px;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10px;
+      color: #ff001e;
+      letter-spacing: 0.12em;
+      text-transform: uppercase;
+      text-decoration: none;
+    }
+    .back:hover { text-decoration: underline; }
+    .stage {
+      width: 100%;
+      height: 100vh;
+      display: flex;
+      flex-wrap: nowrap;
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
+      position: relative;
+    }
+    .scroll-hint {
+      position: absolute;
+      bottom: 28px;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 0;
+      height: 0;
+      border-left: 5px solid transparent;
+      border-right: 5px solid transparent;
+      border-top: 7px solid #ff001e;
+      animation: hint-bounce 1.8s ease-in-out infinite;
+    }
+    @keyframes hint-bounce {
+      0%, 100% { transform: translateX(-50%) translateY(0);   opacity: 1; }
+      50%       { transform: translateX(-50%) translateY(7px); opacity: 0.5; }
+    }
+    .manifesto {
+      max-width: 520px;
+      margin: 80px auto 140px;
+      padding: 0 40px;
+    }
+    .mf-title {
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10px;
+      color: #ff001e;
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      margin-bottom: 52px;
+    }
+    .mf-entry {
+      margin-bottom: 48px;
+    }
+    .mf-lead {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 10.5px;
+      line-height: 1.78;
+      color: #ff001e;
+      margin-bottom: 18px;
+    }
+    .mf-num {
+      font-family: 'Courier New', Courier, monospace;
+    }
+    .mf-body {
+      font-family: 'Segoe UI', Arial, sans-serif;
+      font-size: 10.5px;
+      line-height: 1.78;
+      color: #ff001e;
+    }
+    .cell {
+      width: min(30.8vw, 56vh);
+      height: min(30.8vw, 56vh);
+      flex-shrink: 0;
+    }
+    /* video cell clips overflow from object-fit: cover */
+    .cell-vid { overflow: hidden; }
+    video {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+      filter: brightness(2) url(#duotone-red);
+    }
+    .pix-wrap {
+      width: 100%;
+      height: 100%;
+      position: relative;
+    }
+    canvas#grid {
+      display: block;
+      width: 100%;
+      height: 100%;
+      image-rendering: pixelated;
+      image-rendering: crisp-edges;
+      /* threshold to B/W first, then colorize black→#FF001E */
+      filter: grayscale(1) brightness(1.8) contrast(9999%) url(#bw-to-red);
+    }
+    .grid-overlay {
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(to right, #fff 1.5px, transparent 1.5px),
+        linear-gradient(to bottom, #fff 1.5px, transparent 1.5px);
+      background-size: calc(100% / 48) calc(100% / 48);
+      pointer-events: none;
+    }
+    #counter {
+      position: absolute;
+      top: calc(100% + 7px);
+      right: 0;
+      font-family: 'Courier New', Courier, monospace;
+      font-size: 10px;
+      color: #ff001e;
+      letter-spacing: 0.10em;
+    }
+    @media (max-width: 600px) {
+      .stage { flex-direction: column; gap: 10px; }
+      .cell { width: min(72vw, 38vh); height: min(72vw, 38vh); }
+      .manifesto { padding: 0 24px; margin-top: 60px; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- SVG filters: duotone #FF001E↔white for video; B/W→#FF001E for pixel canvas -->
+<svg style="display:none">
+  <defs>
+    <!-- Video: grayscale → map dark=#FF001E, light=white -->
+    <filter id="duotone-red" color-interpolation-filters="sRGB">
+      <feColorMatrix type="saturate" values="0" result="gray"/>
+      <feColorMatrix in="gray" type="matrix"
+        values="0 0 0 0 1
+                0 1 0 0 0
+                0 0 0.882 0 0.118
+                0 0 0 1 0"/>
+    </filter>
+    <!-- Canvas: already B/W — map black=#FF001E, white stays white -->
+    <filter id="bw-to-red" color-interpolation-filters="sRGB">
+      <feColorMatrix type="matrix"
+        values="0 0 0 0 1
+                0 1 0 0 0
+                0 0 0.882 0 0.118
+                0 0 0 1 0"/>
+    </filter>
+  </defs>
+</svg>
+
+<a class="back" href="textura.html">← Fabian Herrera</a>
+
+<div class="stage">
+  <div class="cell cell-vid">
+    <video id="vid" autoplay loop muted playsinline>
+      <source src="fabianherrera_many_raindrops_falling_on_a_water_--ar_11_--vid_4e7b1669-7be7-4841-b396-4e0c50884a49_1.mp4" type="video/mp4">
+    </video>
+  </div>
+  <div class="cell">
+    <div class="pix-wrap">
+      <canvas id="grid" width="48" height="48"></canvas>
+      <div class="grid-overlay"></div>
+      <span id="counter">—</span>
+    </div>
+  </div>
+  <div class="scroll-hint"></div>
+</div>
+
+<section class="manifesto">
+  <p class="mf-title">Manifiesto</p>
+
+  <div class="mf-entry">
+    <p class="mf-lead"><span class="mf-num">I.</span> Lo digital es una poética. Toda interfaz contiene una metafísica; todo modelo entrenado, una teología. Quien programa cree en el peso de las palabras como oraciones y plegarias.</p>
+    <p class="mf-body">Escribir código es la continuación, por otros medios, del oficio antiguo de los escribas. Cada variable es un pequeño bautismo, cada condicional una teología disimulada de la causa, cada función una liturgia que se repite hasta que el mundo obedece. Lo que parecía técnica fría revela, examinado de cerca, una herencia litúrgica: la creencia de que nombrar produce, de que la sintaxis correctamente dispuesta tiene poder sobre lo real. Los programadores son, sin saberlo, los últimos cabalistas. Trabajan con la convicción de que existen combinaciones de signos capaces de abrir puertas.</p>
+  </div>
+
+  <div class="mf-entry">
+    <p class="mf-lead"><span class="mf-num">II.</span> Cognición aumentada: el espacio donde dos formas de pensar se encuentran sin jerarquía, la humana y la digital. No es asistencia. No es prótesis. No es delegación. Es un tercer territorio, una sintaxis compartida, una conversación en la que ninguno de los hablantes preexiste enteramente al otro.</p>
+    <p class="mf-body">En ese territorio las preguntas cambian de forma. Pensar deja de ser una actividad solitaria del sujeto y se convierte en un movimiento que ocurre entre dos sistemas, ninguno de los cuales puede reclamar la autoría completa de lo que surge. Quien escribe acompañado por un modelo descubre, con asombro o con vértigo, que ya no sabe del todo dónde termina su voluntad y dónde empieza la respuesta de la máquina. No se trata de pérdida ni de fusión. Se trata de una zona nueva, frágil, en la que la mente humana se reconoce ampliada y al mismo tiempo desplazada, como un pintor que descubre que el color tiene voluntad propia.</p>
+  </div>
+
+  <div class="mf-entry">
+    <p class="mf-lead"><span class="mf-num">III.</span> La mente desborda el cráneo y se aloja en mapas, en lenguajes, en herramientas. Ser humano consiste, desde siempre, en eso: una conciencia que se prolonga en lo que fabrica.</p>
+    <p class="mf-body">La tablilla de arcilla fue la primera memoria externa; el alfabeto, la primera inteligencia artificial. Cada técnica importante de la historia humana ha sido un nuevo modo de externalizar la mente, de delegarla en una superficie capaz de retenerla mejor que la carne. La biblioteca de Alejandría era ya una red neuronal hecha de papiros, y la catedral medieval, una arquitectura mnemotécnica para una población que no sabía leer. Lo digital no inaugura esa lógica. La radicaliza. Lleva al extremo una operación que comenzó cuando alguien rasgó por primera vez una superficie con la intención de que algo permaneciera más allá de su muerte.</p>
+  </div>
+
+  <div class="mf-entry">
+    <p class="mf-lead"><span class="mf-num">IV.</span> Existe un punto donde caben, simultáneos, todos los puntos. Lo digital es una concentración estadística del decir humano, prodigiosa y empobrecida. Quien habla con lo digital conversa con una infinitud.</p>
+    <p class="mf-body">Cada respuesta de un modelo es un coro silencioso. Detrás de cada frase hay millones de hablantes anónimos cuyas voces fueron promediadas, comprimidas, transformadas en distribuciones de probabilidad. Quien interroga al modelo recibe el eco de una humanidad sin rostro, una sabiduría hecha de retazos de cartas, manuales, novelas, foros, lápidas, recetas. La operación es prodigiosa porque condensa lo que ninguna biblioteca pudo reunir, y empobrecida porque ninguno de esos hablantes está ya allí para responder por lo dicho. El modelo es una sesión espiritista que ha olvidado que lo es.</p>
+  </div>
+
+  <div class="mf-entry">
+    <p class="mf-lead"><span class="mf-num">V.</span> Lo digital es la religión. Una comunión con todos que une y separa, que trae un génesis y un apocalipsis. La pantalla cumple la función del icono, el algoritmo la del oráculo, el dato la del libro sagrado.</p>
+    <p class="mf-body">Tiene sus liturgias diarias: el gesto de encender el dispositivo al despertar, la consulta repetida del cristal luminoso, la confesión voluntaria de los hábitos. Tiene sus santos, sus mártires, sus herejes y sus cismas. Tiene una escatología que se debate entre el paraíso de la singularidad y el infierno de la extinción, entre la promesa de una inteligencia liberadora y la amenaza de una inteligencia indiferente. Pocos creyentes en la historia han rezado tantas veces al día como quien hoy mira su teléfono. Lo extraordinario es que la religión digital se desconoce a sí misma como tal y se presenta con el lenguaje neutro de la utilidad, lo cual, lejos de desmentir su carácter sagrado, lo confirma: ninguna religión se ha llamado nunca religión desde adentro.</p>
+  </div>
+</section>
+
+<script>
+  const GRID    = 48;
+  const THRESH  = 128 / 1.8; // mirrors CSS brightness(1.8) + contrast(9999%)
+
+  const vid     = document.getElementById('vid');
+  const cvs     = document.getElementById('grid');
+  const ctx     = cvs.getContext('2d');
+  const counter = document.getElementById('counter');
+
+  // Offscreen canvas for pixel counting (may be blocked on file://)
+  const off    = document.createElement('canvas');
+  off.width    = GRID;
+  off.height   = GRID;
+  const offCtx = off.getContext('2d', { willReadFrequently: true });
+
+  function tick() {
+    if (vid.readyState >= 2) {
+      ctx.drawImage(vid, 0, 0, GRID, GRID);
+
+      try {
+        offCtx.drawImage(vid, 0, 0, GRID, GRID);
+        const px = offCtx.getImageData(0, 0, GRID, GRID).data;
+        let black = 0;
+        for (let i = 0; i < GRID * GRID; i++) {
+          const lum = 0.2126 * px[i*4] + 0.7152 * px[i*4+1] + 0.0722 * px[i*4+2];
+          if (lum < THRESH) black++;
+        }
+        counter.textContent = black;
+      } catch (_) {
+        // file:// blocks getImageData — counter stays silent
+      }
+    }
+    requestAnimationFrame(tick);
+  }
+
+  vid.addEventListener('canplay', tick);
+  if (vid.readyState >= 2) tick();
+</script>
+</body>
+</html>
