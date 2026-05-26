@@ -26,7 +26,10 @@ export default async function handler(req, res) {
   });
 
   if (!response.ok) {
-    return res.status(500).json({ error: 'Error guardando mensaje' });
+    let detail = '';
+    try { detail = await response.text(); } catch (_) {}
+    console.error('Supabase error', response.status, detail);
+    return res.status(500).json({ error: 'Error guardando mensaje', detail, status: response.status });
   }
 
   return res.status(200).json({ ok: true });
