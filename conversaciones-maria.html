@@ -1,0 +1,851 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Conversaciones con María</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Josefin+Sans:wght@300;400;600;700&display=swap" rel="stylesheet"/>
+<style>
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --bg:#1e1e1e;
+  --yellow:#f0ff81;
+  --teal:#69ffe6;
+  --teal-dk:#1D9E75;
+  --cyan:#69ebff;
+  --blue:#5ab5ff;
+  --blue-dk:#185FA5;
+  --purple:#7F77DD;
+  --coral:#D85A30;
+  --amber:#BA7517;
+  --text:#e8e8e0;
+  --text-muted:#888780;
+  --f:'Josefin Sans',sans-serif;
+}
+html{scroll-behavior:smooth;scroll-padding-top:52px}
+body{background:var(--bg);color:var(--text);font-family:var(--f);font-weight:300;line-height:1.6;overflow-x:hidden}
+
+/* ── NAVBAR ── */
+.nav{
+  position:fixed;top:0;left:0;right:0;z-index:100;
+  height:52px;
+  background:rgba(30,30,30,.85);
+  backdrop-filter:blur(12px);
+  -webkit-backdrop-filter:blur(12px);
+  border-bottom:1px solid rgba(255,255,255,.06);
+  display:flex;align-items:center;
+}
+.nav-inner{
+  max-width:960px;margin:0 auto;padding:0 clamp(16px,5vw,28px);
+  width:100%;display:flex;align-items:center;justify-content:space-between;gap:16px;
+}
+.nav-brand{font-size:12px;font-weight:700;color:var(--yellow);white-space:nowrap;flex-shrink:0}
+.nav-links{display:flex;gap:clamp(12px,3vw,28px);list-style:none;align-items:center;flex-wrap:nowrap;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.nav-links::-webkit-scrollbar{display:none}
+.nav-links a{
+  font-size:11px;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  color:var(--text-muted);text-decoration:none;white-space:nowrap;
+  transition:color .2s;
+}
+.nav-links a:hover{color:var(--yellow)}
+@media(max-width:520px){
+  .nav-brand{font-size:11px}
+  .nav-links{gap:10px}
+  .nav-links a{font-size:10px}
+}
+
+/* ── UTILS ── */
+.container{max-width:960px;margin:0 auto;padding:0 clamp(16px,5vw,28px)}
+.label{font-size:11px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;color:var(--text-muted);margin-bottom:10px}
+.divider{height:1px;background:rgba(255,255,255,.07);margin:clamp(40px,8vw,64px) 0}
+
+/* ── 00 HERO ── */
+.hero{
+  min-height:92vh;
+  display:flex;
+  flex-direction:column;
+  justify-content:flex-end;
+  padding:80px 0 clamp(40px,8vw,72px);
+  border-bottom:1px solid rgba(255,255,255,.07)
+}
+.hero-eyebrow{font-size:12px;font-weight:600;letter-spacing:.15em;color:var(--yellow);margin-bottom:clamp(16px,4vw,28px)}
+.hero-title{
+  font-size:clamp(48px,10vw,120px);
+  font-weight:700;
+  line-height:.92;
+  color:var(--yellow);
+  margin-bottom:clamp(20px,4vw,32px)
+}
+.hero-sub{
+  font-size:clamp(15px,2vw,18px);
+  font-weight:300;
+  color:var(--text-muted);
+  max-width:560px;
+  line-height:1.6;
+  margin-bottom:clamp(32px,6vw,48px)
+}
+.hero-metrics{display:flex;gap:clamp(20px,5vw,40px);flex-wrap:wrap}
+.metric .num{font-size:clamp(28px,6vw,40px);font-weight:700;color:var(--text);line-height:1}
+.metric .lbl{font-size:12px;color:var(--text-muted);margin-top:4px}
+
+/* ── 00B PROYECTO ── */
+.proyecto{padding:clamp(48px,8vw,80px) 0;border-bottom:1px solid rgba(255,255,255,.07)}
+.proyecto-intro{font-size:clamp(14px,2vw,16px);font-weight:300;color:var(--text);max-width:600px;line-height:1.8;margin-bottom:clamp(32px,5vw,48px)}
+.mm-wrap{width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none}
+.mm-wrap::-webkit-scrollbar{display:none}
+.mm-wrap svg{display:block;margin:0 auto;min-width:640px;max-width:900px;width:100%}
+
+/* ── 01 CORPUS ── */
+.corpus{padding:clamp(48px,8vw,80px) 0}
+.corpus-grid{
+  display:grid;
+  grid-template-columns:repeat(2,1fr);
+  gap:2px;
+  border:1px solid rgba(255,255,255,.1);
+  border-radius:4px;
+  overflow:hidden;
+  margin-top:40px
+}
+.corpus-cell{padding:clamp(18px,3vw,28px) clamp(20px,4vw,32px);background:rgba(255,255,255,.02);transition:background .2s}
+.corpus-cell:hover{background:rgba(255,255,255,.04)}
+.corpus-num{font-size:clamp(36px,8vw,56px);font-weight:700;color:var(--yellow);line-height:1}
+.corpus-label{font-size:13px;color:var(--text-muted);margin-top:6px;font-weight:400}
+.corpus-note{font-size:11px;color:rgba(255,255,255,.2);margin-top:4px}
+
+/* ── 02 FRECUENCIA ── */
+.freq{padding:clamp(48px,8vw,80px) 0}
+.freq-grid{
+  display:grid;
+  grid-template-columns:repeat(auto-fit,minmax(min(100%,280px),1fr));
+  gap:2px;
+  margin-top:40px
+}
+.freq-block{padding:clamp(16px,3vw,24px) clamp(16px,3vw,28px);background:rgba(255,255,255,.02);border-radius:4px}
+.freq-name{font-size:13px;font-weight:700;margin-bottom:4px}
+.freq-read{font-size:11px;color:var(--text-muted);margin-bottom:18px;line-height:1.5}
+.bar-row{display:flex;align-items:center;gap:8px;margin-bottom:7px}
+.bar-word{
+  font-size:11px;
+  color:var(--text-muted);
+  width:clamp(72px,18vw,100px);
+  flex-shrink:0;
+  text-align:right;
+  white-space:nowrap;
+  overflow:hidden;
+  text-overflow:ellipsis
+}
+.bar-track{flex:1;height:6px;background:rgba(255,255,255,.07);border-radius:3px;overflow:hidden;min-width:0}
+.bar-fill{height:100%;border-radius:3px}
+.bar-n{font-size:11px;color:rgba(255,255,255,.25);width:20px;text-align:right;flex-shrink:0}
+
+/* ── 02B DATO EDITORIAL ── */
+.editorial{padding:clamp(48px,8vw,80px) 0;text-align:center}
+.editorial-num{font-size:clamp(64px,12vw,180px);font-weight:700;color:var(--yellow);line-height:1}
+.editorial-line{
+  font-size:clamp(16px,2.5vw,28px);
+  font-weight:300;
+  color:var(--text-muted);
+  margin-top:12px;
+  max-width:640px;
+  margin-left:auto;
+  margin-right:auto
+}
+.editorial-vs{font-size:14px;font-weight:600;letter-spacing:.1em;color:rgba(255,255,255,.15);margin:16px 0}
+.editorial-pair{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:clamp(20px,6vw,48px);
+  flex-wrap:wrap;
+  margin:24px 0
+}
+.editorial-pair-vs{font-size:clamp(28px,6vw,48px);color:rgba(255,255,255,.1);font-weight:700}
+
+/* ── 03 INSIGHTS ── */
+.insights{padding:clamp(48px,8vw,80px) 0}
+.insights-intro{
+  font-size:clamp(14px,2vw,16px);
+  font-weight:300;
+  color:var(--text-muted);
+  max-width:560px;
+  line-height:1.7;
+  margin-bottom:clamp(36px,6vw,56px)
+}
+.col-header{font-size:13px;font-weight:700;margin-bottom:24px;padding-bottom:12px;border-bottom:1px solid rgba(255,255,255,.08)}
+.insight-card{padding:clamp(16px,3vw,22px) clamp(16px,3vw,24px);border-radius:4px;margin-bottom:10px;border:1px solid rgba(255,255,255,.06);transition:border-color .2s}
+.insight-card:hover{border-color:rgba(255,255,255,.14)}
+.i-tag{display:inline-block;font-size:10px;font-weight:700;letter-spacing:.1em;padding:3px 10px;border-radius:2px;margin-bottom:10px}
+.i-tag.disfraz{background:rgba(29,158,117,.15);color:var(--teal-dk)}
+.i-tag.miedo{background:rgba(211,90,48,.12);color:var(--coral)}
+.i-tag.ironia{background:rgba(186,117,23,.12);color:var(--amber)}
+.i-tag.poder{background:rgba(127,119,221,.12);color:var(--purple)}
+.i-title{font-size:clamp(13px,2vw,15px);font-weight:700;color:var(--text);margin-bottom:8px;line-height:1.3}
+.i-body{font-size:12px;font-weight:300;color:var(--text-muted);line-height:1.6;margin-bottom:12px}
+.i-quote{font-size:11px;font-style:italic;color:rgba(255,255,255,.2);border-left:2px solid rgba(255,255,255,.1);padding-left:12px;line-height:1.5}
+.two-col{display:grid;grid-template-columns:1fr 1fr;gap:24px}
+
+/* ── 04 CIERRE ── */
+.cierre{padding:clamp(48px,8vw,80px) 0}
+.cierre-text{
+  font-size:clamp(17px,2.5vw,28px);
+  font-weight:300;
+  line-height:1.6;
+  max-width:680px;
+  color:var(--text-muted)
+}
+.cierre-text strong{color:var(--text);font-weight:600}
+
+/* ── 05 METODOLOGÍA ── */
+.meta{padding:clamp(40px,8vw,64px) 0 40px;border-top:1px solid rgba(255,255,255,.07)}
+.meta-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(20px,4vw,32px);margin-top:32px}
+.meta-item .m-key{font-size:11px;font-weight:600;color:var(--text-muted);margin-bottom:6px;letter-spacing:.05em}
+.meta-item .m-val{font-size:13px;font-weight:300;color:rgba(255,255,255,.5);line-height:1.5}
+
+/* ── SLOT MACHINE ── */
+.slot-section{padding:clamp(48px,8vw,80px) 0;border-top:1px solid rgba(255,255,255,.07)}
+.slot-intro{font-size:clamp(13px,2vw,15px);font-weight:300;color:var(--text-muted);max-width:520px;line-height:1.7;margin-bottom:48px}
+.slot-machine{
+  max-width:680px;
+  background:rgba(0,0,0,.35);
+  border:1px solid rgba(240,255,129,.15);
+  border-radius:6px;
+  overflow:hidden;
+  position:relative;
+}
+.slot-header{
+  display:flex;align-items:center;gap:10px;
+  padding:14px 24px;
+  background:rgba(240,255,129,.04);
+  border-bottom:1px solid rgba(240,255,129,.1);
+}
+.slot-dot{width:8px;height:8px;border-radius:50%;background:var(--yellow);opacity:.6;flex-shrink:0}
+.slot-label-top{font-size:10px;font-weight:700;letter-spacing:.15em;text-transform:uppercase;color:rgba(240,255,129,.5)}
+.slot-window{
+  position:relative;
+  height:clamp(100px,20vw,130px);
+  overflow:hidden;
+  display:flex;align-items:center;justify-content:center;
+  padding:0 32px;
+}
+.slot-window::before,
+.slot-window::after{display:none}
+.slot-reel{
+  width:100%;text-align:center;
+  font-size:clamp(14px,2.5vw,18px);font-weight:400;color:var(--yellow);line-height:1.45;
+  transition:transform .08s ease,opacity .08s ease;
+  will-change:transform,opacity;
+}
+.slot-reel.spinning{
+  animation:slotSpin .12s steps(1,end) infinite;
+}
+@keyframes slotSpin{
+  0%  {transform:translateY(0);opacity:1}
+  50% {transform:translateY(-8px);opacity:.4}
+  100%{transform:translateY(8px);opacity:.4}
+}
+.slot-reel.landing{
+  animation:slotLand .35s ease-out forwards;
+}
+@keyframes slotLand{
+  0%  {transform:translateY(16px);opacity:0}
+  60% {transform:translateY(-4px);opacity:1}
+  100%{transform:translateY(0);opacity:1}
+}
+.slot-reel.idle{opacity:.35;font-style:italic;font-size:clamp(12px,2vw,14px);color:var(--text-muted)}
+.slot-footer{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;
+  padding:16px 24px;
+  border-top:1px solid rgba(240,255,129,.08);
+  background:rgba(0,0,0,.2);
+}
+.slot-counter{font-size:11px;color:rgba(255,255,255,.2);font-weight:300}
+.slot-btn{
+  font-family:var(--f);font-size:12px;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  color:#1e1e1e;background:var(--yellow);
+  border:none;border-radius:3px;
+  padding:10px 24px;cursor:pointer;
+  transition:opacity .15s,transform .1s;
+  flex-shrink:0;
+}
+.slot-btn:hover{opacity:.88}
+.slot-btn:active{transform:scale(.97)}
+.slot-btn:disabled{opacity:.4;cursor:not-allowed;transform:none}
+
+/* ── FOOTER ── */
+footer{padding:28px 0 48px;border-top:1px solid rgba(255,255,255,.05)}
+.footer-row{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:12px}
+.footer-brand{font-size:12px;font-weight:700;color:var(--yellow)}
+.footer-note{font-size:11px;color:rgba(255,255,255,.2)}
+
+/* ── RESPONSIVE ── */
+
+/* Tablet: ≤ 768px */
+@media(max-width:768px){
+  .two-col{grid-template-columns:1fr}
+  .meta-grid{grid-template-columns:1fr 1fr}
+  .hero{min-height:auto;justify-content:flex-start;padding-top:calc(52px + clamp(40px,10vw,64px)) !important}
+}
+
+/* Mobile: ≤ 600px */
+@media(max-width:600px){
+  .corpus-grid{grid-template-columns:1fr}
+  .meta-grid{grid-template-columns:1fr}
+  .freq-grid{grid-template-columns:1fr}
+  .hero-metrics{gap:16px 24px}
+  .hero-metrics .metric{min-width:calc(50% - 12px)}
+  .bar-word{width:72px;font-size:10px}
+}
+
+/* Small mobile: ≤ 380px */
+@media(max-width:380px){
+  .hero-title{font-size:42px}
+  .hero-metrics .metric{min-width:100%}
+  .bar-word{width:60px}
+  .corpus-num{font-size:32px}
+}
+</style>
+</head>
+<body>
+
+<!-- ─────────────── NAV ─────────────── -->
+<nav class="nav">
+  <div class="nav-inner">
+    <span class="nav-brand">MarIA · 2026</span>
+    <ul class="nav-links">
+      <li><a href="#proyecto">00 Proyecto</a></li>
+      <li><a href="#material">01 Material</a></li>
+      <li><a href="#frecuencia">02 Frecuencia</a></li>
+      <li><a href="#insights">03 Insights</a></li>
+      <li><a href="#cierre">04 Cierre</a></li>
+      <li><a href="#maria-pregunta">Preguntas</a></li>
+      <li><a href="#metodologia">05 Método</a></li>
+    </ul>
+  </div>
+</nav>
+
+<!-- ─────────────── 00 HERO ─────────────── -->
+<section class="hero" style="padding-top:52px">
+<div class="container">
+  <p class="hero-eyebrow">Un análisis de conversaciones · RedUnete · 2025</p>
+  <h1 class="hero-title">Conver&shy;saciones<br>con María</h1>
+  <p class="hero-sub">~180 conversaciones entre personas y un chatbot sobre cómo hacer política de inteligencia artificial en universidades colombianas. Esto es lo que esas conversaciones revelan sobre quienes las sostuvieron.</p>
+  <div class="hero-metrics">
+    <div class="metric"><div class="num">~180</div><div class="lbl">conversaciones analizadas</div></div>
+    <div class="metric"><div class="num">6</div><div class="lbl">campos semánticos</div></div>
+    <div class="metric"><div class="num">8</div><div class="lbl">insights contraintuitivos</div></div>
+    <div class="metric"><div class="num">1</div><div class="lbl">confesión literal</div></div>
+  </div>
+</div>
+</section>
+
+<!-- ─────────────── 00B PROYECTO ─────────────── -->
+<section id="proyecto" class="proyecto">
+<div class="container">
+  <p class="label">00 · El proyecto</p>
+  <p class="proyecto-intro">MarIA es un chatbot de RedUnete entrenado en documentos de política de IA para educación superior. Cerca de 180 personas lo consultaron para resolver dudas, dialogar o cuestionar el tema — y esas conversaciones anónimas se convirtieron en el corpus de este análisis. El objetivo era hacer visible un pensamiento colectivo que suele existir de forma tácita: qué se está pensando, qué inquieta y qué preguntas permanecen abiertas respecto a la IA en las universidades colombianas.</p>
+  <div class="mm-wrap">
+  <svg viewBox="0 0 900 460" xmlns="http://www.w3.org/2000/svg" aria-label="Mapa mental del proyecto">
+    <defs>
+      <style>
+        .mmt{font-family:'Josefin Sans',sans-serif;font-weight:600;font-size:12px;letter-spacing:.04em}
+        .mmb{font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:10px;fill:rgba(255,255,255,.45)}
+        .mmi{font-family:'Josefin Sans',sans-serif;font-weight:300;font-size:9px;fill:rgba(255,255,255,.22);font-style:italic}
+      </style>
+    </defs>
+
+    <!-- ── Líneas bezier ── -->
+    <!-- raíz → corpus NW -->
+    <path d="M 370,228 C 285,228 185,168 185,168" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
+    <!-- raíz → propósito NE -->
+    <path d="M 530,228 C 615,228 715,168 715,168" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
+    <!-- raíz → método SW -->
+    <path d="M 370,242 C 285,242 185,352 185,352" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
+    <!-- raíz → hallazgos SE -->
+    <path d="M 530,242 C 615,242 715,352 715,352" fill="none" stroke="rgba(255,255,255,.1)" stroke-width="1"/>
+
+    <!-- ── Nodo raíz: MarIA ── -->
+    <rect x="370" y="190" width="160" height="90" rx="4"
+          fill="rgba(240,255,129,.05)" stroke="rgba(240,255,129,.35)" stroke-width="1"/>
+    <text x="450" y="218" text-anchor="middle"
+          font-family="'Josefin Sans',sans-serif" font-weight="700" font-size="20" fill="#f0ff81">MarIA</text>
+    <text x="450" y="236" text-anchor="middle"
+          font-family="'Josefin Sans',sans-serif" font-weight="400" font-size="10" fill="rgba(255,255,255,.4)">chatbot · RedUnete</text>
+    <text x="450" y="252" text-anchor="middle"
+          font-family="'Josefin Sans',sans-serif" font-weight="300" font-size="10" fill="rgba(255,255,255,.25)">entrenado en política de IA</text>
+    <text x="450" y="268" text-anchor="middle"
+          font-family="'Josefin Sans',sans-serif" font-weight="300" font-size="9" fill="rgba(240,255,129,.3)" font-style="italic">IES colombianas · 2026</text>
+
+    <!-- ── NW: El corpus ── -->
+    <rect x="20" y="108" width="165" height="122" rx="3"
+          fill="rgba(29,158,117,.05)" stroke="rgba(29,158,117,.28)" stroke-width="1"/>
+    <text x="38" y="132" class="mmt" fill="#1D9E75">El corpus</text>
+    <text x="38" y="150" class="mmb">~180 conversaciones</text>
+    <text x="38" y="165" class="mmb">anónimas</text>
+    <text x="38" y="183" class="mmb">dudas · diálogo</text>
+    <text x="38" y="198" class="mmb">cuestionamiento</text>
+    <text x="38" y="216" class="mmi">pensamiento colectivo tácito</text>
+
+    <!-- ── NE: El propósito ── -->
+    <rect x="715" y="108" width="165" height="122" rx="3"
+          fill="rgba(90,181,255,.05)" stroke="rgba(90,181,255,.2)" stroke-width="1"/>
+    <text x="733" y="132" class="mmt" fill="#5ab5ff">El propósito</text>
+    <text x="733" y="150" class="mmb">captar & mapear</text>
+    <text x="733" y="165" class="mmb">lo que se piensa</text>
+    <text x="733" y="183" class="mmb">sobre IA en educación</text>
+    <text x="733" y="201" class="mmb">superior colombiana</text>
+    <text x="733" y="218" class="mmi">hacer visible lo tácito</text>
+
+    <!-- ── SW: El método ── -->
+    <rect x="20" y="298" width="165" height="130" rx="3"
+          fill="rgba(186,117,23,.05)" stroke="rgba(186,117,23,.28)" stroke-width="1"/>
+    <text x="38" y="322" class="mmt" fill="#BA7517">El método</text>
+    <text x="38" y="341" class="mmb">frecuencia léxica</text>
+    <text x="38" y="356" class="mmb">+ stopwords eliminadas</text>
+    <text x="38" y="374" class="mmb">6 campos semánticos</text>
+    <text x="38" y="389" class="mmb">análisis cualitativo</text>
+    <text x="38" y="407" class="mmb">de enunciación</text>
+    <text x="38" y="422" class="mmi">método mixto</text>
+
+    <!-- ── SE: Los hallazgos ── -->
+    <rect x="715" y="298" width="165" height="130" rx="3"
+          fill="rgba(127,119,221,.05)" stroke="rgba(127,119,221,.28)" stroke-width="1"/>
+    <text x="733" y="322" class="mmt" fill="#7F77DD">Los hallazgos</text>
+    <text x="733" y="341" class="mmb">"estrategia" ×16</text>
+    <text x="733" y="356" class="mmb">"aprendizaje" ×3</text>
+    <text x="733" y="374" class="mmb">miedos enmascarados</text>
+    <text x="733" y="389" class="mmb">estructuras de poder</text>
+    <text x="733" y="407" class="mmb">artefactos del corpus</text>
+    <text x="733" y="422" class="mmi">UNIMINUTO ×9 idéntica</text>
+  </svg>
+  </div>
+</div>
+</section>
+
+<!-- ─────────────── 01 CORPUS ─────────────── -->
+<section id="material" class="corpus">
+<div class="container">
+  <p class="label">01 · El material</p>
+  <p style="font-size:clamp(14px,2vw,16px);font-weight:300;color:var(--text-muted);max-width:560px;line-height:1.7">
+    MarIA es un chatbot entrenado con políticas, estrategias y lineamientos de uso de IA en educación superior. Las conversaciones aquí analizadas corresponden a sesiones reales de personas que lo consultaron para tomar decisiones institucionales.
+  </p>
+  <div class="corpus-grid">
+    <div class="corpus-cell">
+      <div class="corpus-num">16</div>
+      <div class="corpus-label">veces aparece "institución"</div>
+      <div class="corpus-note">la palabra más frecuente de todo el corpus</div>
+    </div>
+    <div class="corpus-cell">
+      <div class="corpus-num">14</div>
+      <div class="corpus-label">apariciones de "lineamientos" y "políticas"</div>
+      <div class="corpus-note">empatan en primer lugar del campo de control</div>
+    </div>
+    <div class="corpus-cell">
+      <div class="corpus-num">16</div>
+      <div class="corpus-label">veces aparece "estrategia" (singular + plural)</div>
+      <div class="corpus-note">lo que más se le pide al bot: recetas, no comprensión</div>
+    </div>
+    <div class="corpus-cell">
+      <div class="corpus-num">3</div>
+      <div class="corpus-label">veces aparece "aprendizaje"</div>
+      <div class="corpus-note">en un corpus entero sobre educación</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────── 02 FRECUENCIA ─────────────── -->
+<section id="frecuencia" class="freq">
+<div class="container">
+  <p class="label">02 · Lo que más se dijo</p>
+  <p style="font-size:clamp(14px,2vw,16px);font-weight:300;color:var(--text-muted);max-width:560px;line-height:1.7;margin-bottom:0">
+    Seis campos semánticos construidos a partir del conteo de palabras. El tamaño de cada barra es relativo al máximo del campo.
+  </p>
+  <div class="freq-grid">
+
+    <!-- Control y regulación -->
+    <div class="freq-block">
+      <div class="freq-name" style="color:var(--purple)">Control y regulación</div>
+      <div class="freq-read">El campo más denso. La conversación sobre IA es ante todo sobre norma.</div>
+      <div class="bar-row"><span class="bar-word">lineamientos</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--purple)"></div></div><span class="bar-n">14</span></div>
+      <div class="bar-row"><span class="bar-word">políticas</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--purple)"></div></div><span class="bar-n">14</span></div>
+      <div class="bar-row"><span class="bar-word">ético / ética</span><div class="bar-track"><div class="bar-fill" style="width:64%;background:#AFA9EC"></div></div><span class="bar-n">9</span></div>
+      <div class="bar-row"><span class="bar-word">calidad</span><div class="bar-track"><div class="bar-fill" style="width:29%;background:#CECBF6"></div></div><span class="bar-n">4</span></div>
+      <div class="bar-row"><span class="bar-word">formulación</span><div class="bar-track"><div class="bar-fill" style="width:29%;background:#CECBF6"></div></div><span class="bar-n">4</span></div>
+      <div class="bar-row"><span class="bar-word">establecer</span><div class="bar-track"><div class="bar-fill" style="width:29%;background:#CECBF6"></div></div><span class="bar-n">4</span></div>
+      <div class="bar-row"><span class="bar-word">públicas</span><div class="bar-track"><div class="bar-fill" style="width:29%;background:#CECBF6"></div></div><span class="bar-n">4</span></div>
+    </div>
+
+    <!-- Actores -->
+    <div class="freq-block">
+      <div class="freq-name" style="color:var(--teal-dk)">Actores e instituciones</div>
+      <div class="freq-read">El sujeto central no es quien aprende: es la organización.</div>
+      <div class="bar-row"><span class="bar-word">institución</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--teal-dk)"></div></div><span class="bar-n">16</span></div>
+      <div class="bar-row"><span class="bar-word">estudiantes</span><div class="bar-track"><div class="bar-fill" style="width:75%;background:#1D9E75"></div></div><span class="bar-n">12</span></div>
+      <div class="bar-row"><span class="bar-word">universidad</span><div class="bar-track"><div class="bar-fill" style="width:50%;background:#5DCAA5"></div></div><span class="bar-n">8</span></div>
+      <div class="bar-row"><span class="bar-word">docentes</span><div class="bar-track"><div class="bar-fill" style="width:50%;background:#5DCAA5"></div></div><span class="bar-n">8</span></div>
+      <div class="bar-row"><span class="bar-word">instituciones</span><div class="bar-track"><div class="bar-fill" style="width:44%;background:#9FE1CB"></div></div><span class="bar-n">7</span></div>
+      <div class="bar-row"><span class="bar-word">docente</span><div class="bar-track"><div class="bar-fill" style="width:44%;background:#9FE1CB"></div></div><span class="bar-n">7</span></div>
+      <div class="bar-row"><span class="bar-word">universidades</span><div class="bar-track"><div class="bar-fill" style="width:31%;background:#9FE1CB"></div></div><span class="bar-n">5</span></div>
+    </div>
+
+    <!-- Estrategia -->
+    <div class="freq-block">
+      <div class="freq-name" style="color:var(--amber)">Acción y estrategia</div>
+      <div class="freq-read">Nadie pide comprensión. Piden recetas. El bot como dispensador de fórmulas.</div>
+      <div class="bar-row"><span class="bar-word">estrategia</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--amber)"></div></div><span class="bar-n">8</span></div>
+      <div class="bar-row"><span class="bar-word">estrategias</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--amber)"></div></div><span class="bar-n">8</span></div>
+      <div class="bar-row"><span class="bar-word">implementación</span><div class="bar-track"><div class="bar-fill" style="width:63%;background:#EF9F27"></div></div><span class="bar-n">5</span></div>
+      <div class="bar-row"><span class="bar-word">innovación</span><div class="bar-track"><div class="bar-fill" style="width:50%;background:#FAC775"></div></div><span class="bar-n">4</span></div>
+      <div class="bar-row"><span class="bar-word">oportunidades</span><div class="bar-track"><div class="bar-fill" style="width:38%;background:#FAC775"></div></div><span class="bar-n">3</span></div>
+      <div class="bar-row"><span class="bar-word">adoptar</span><div class="bar-track"><div class="bar-fill" style="width:38%;background:#FAC775"></div></div><span class="bar-n">3</span></div>
+      <div class="bar-row"><span class="bar-word">sostenible</span><div class="bar-track"><div class="bar-fill" style="width:38%;background:#FAC775"></div></div><span class="bar-n">3</span></div>
+    </div>
+
+    <!-- Producción -->
+    <div class="freq-block">
+      <div class="freq-name" style="color:var(--coral)">Producción académica</div>
+      <div class="freq-read">La autoría como epicentro de la ansiedad. La universidad como fábrica de documentos.</div>
+      <div class="bar-row"><span class="bar-word">trabajos</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--coral)"></div></div><span class="bar-n">9</span></div>
+      <div class="bar-row"><span class="bar-word">elaboración</span><div class="bar-track"><div class="bar-fill" style="width:78%;background:#D85A30"></div></div><span class="bar-n">7</span></div>
+      <div class="bar-row"><span class="bar-word">materiales</span><div class="bar-track"><div class="bar-fill" style="width:67%;background:#F0997B"></div></div><span class="bar-n">6</span></div>
+      <div class="bar-row"><span class="bar-word">académicos</span><div class="bar-track"><div class="bar-fill" style="width:67%;background:#F0997B"></div></div><span class="bar-n">6</span></div>
+      <div class="bar-row"><span class="bar-word">producción</span><div class="bar-track"><div class="bar-fill" style="width:44%;background:#F5C4B3"></div></div><span class="bar-n">4</span></div>
+      <div class="bar-row"><span class="bar-word">calidad</span><div class="bar-track"><div class="bar-fill" style="width:44%;background:#F5C4B3"></div></div><span class="bar-n">4</span></div>
+      <div class="bar-row"><span class="bar-word">aprendizaje</span><div class="bar-track"><div class="bar-fill" style="width:33%;background:#F5C4B3"></div></div><span class="bar-n">3</span></div>
+    </div>
+
+    <!-- IA -->
+    <div class="freq-block">
+      <div class="freq-name" style="color:var(--blue-dk)">IA como tecnología</div>
+      <div class="freq-read">"Inteligencia artificial" y "herramientas" tienen la misma frecuencia. La IA se trata como objeto, no como fenómeno.</div>
+      <div class="bar-row"><span class="bar-word">inteligencia</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--blue-dk)"></div></div><span class="bar-n">8</span></div>
+      <div class="bar-row"><span class="bar-word">artificial</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:var(--blue-dk)"></div></div><span class="bar-n">8</span></div>
+      <div class="bar-row"><span class="bar-word">herramientas</span><div class="bar-track"><div class="bar-fill" style="width:88%;background:#378ADD"></div></div><span class="bar-n">7</span></div>
+      <div class="bar-row"><span class="bar-word">generativa</span><div class="bar-track"><div class="bar-fill" style="width:75%;background:#85B7EB"></div></div><span class="bar-n">6</span></div>
+      <div class="bar-row"><span class="bar-word">implementación</span><div class="bar-track"><div class="bar-fill" style="width:63%;background:#B5D4F4"></div></div><span class="bar-n">5</span></div>
+      <div class="bar-row"><span class="bar-word">procesos</span><div class="bar-track"><div class="bar-fill" style="width:63%;background:#B5D4F4"></div></div><span class="bar-n">5</span></div>
+      <div class="bar-row"><span class="bar-word">virtuales</span><div class="bar-track"><div class="bar-fill" style="width:38%;background:#E6F1FB"></div></div><span class="bar-n">3</span></div>
+    </div>
+
+    <!-- Pedagogía -->
+    <div class="freq-block">
+      <div class="freq-name" style="color:#3B6D11">Pedagogía y educación</div>
+      <div class="freq-read">El campo más variado. Pero "aprendizaje" apenas aparece 3 veces. Lo pedagógico es decorado, no núcleo.</div>
+      <div class="bar-row"><span class="bar-word">educación</span><div class="bar-track"><div class="bar-fill" style="width:100%;background:#3B6D11"></div></div><span class="bar-n">12</span></div>
+      <div class="bar-row"><span class="bar-word">educativos</span><div class="bar-track"><div class="bar-fill" style="width:75%;background:#639922"></div></div><span class="bar-n">9</span></div>
+      <div class="bar-row"><span class="bar-word">superior</span><div class="bar-track"><div class="bar-fill" style="width:58%;background:#97C459"></div></div><span class="bar-n">7</span></div>
+      <div class="bar-row"><span class="bar-word">educativas</span><div class="bar-track"><div class="bar-fill" style="width:50%;background:#C0DD97"></div></div><span class="bar-n">6</span></div>
+      <div class="bar-row"><span class="bar-word">programas</span><div class="bar-track"><div class="bar-fill" style="width:42%;background:#C0DD97"></div></div><span class="bar-n">5</span></div>
+      <div class="bar-row"><span class="bar-word">curricular</span><div class="bar-track"><div class="bar-fill" style="width:25%;background:#EAF3DE"></div></div><span class="bar-n">3</span></div>
+      <div class="bar-row"><span class="bar-word">aprendizaje</span><div class="bar-track"><div class="bar-fill" style="width:25%;background:#EAF3DE"></div></div><span class="bar-n">3</span></div>
+    </div>
+
+  </div>
+</div>
+</section>
+
+<!-- ─────────────── 02B DATO EDITORIAL ─────────────── -->
+<section class="editorial" style="border-top:1px solid rgba(255,255,255,.07);border-bottom:1px solid rgba(255,255,255,.07)">
+<div class="container">
+  <p class="label" style="text-align:center">El hallazgo más importante</p>
+  <div class="editorial-pair">
+    <div>
+      <div class="editorial-num">3</div>
+      <div style="font-size:clamp(14px,2vw,16px);color:var(--text-muted);margin-top:8px;font-weight:300">veces: <strong style="color:var(--text);font-weight:700">aprendizaje</strong></div>
+    </div>
+    <div class="editorial-pair-vs">vs</div>
+    <div>
+      <div class="editorial-num">16</div>
+      <div style="font-size:clamp(14px,2vw,16px);color:var(--text-muted);margin-top:8px;font-weight:300">veces: <strong style="color:var(--yellow);font-weight:700">estrategia</strong></div>
+    </div>
+  </div>
+  <p class="editorial-line">En un corpus sobre educación, la palabra que nombra el acto educativo fundamental es marginal. Eso no es un error: es el hallazgo.</p>
+</div>
+</section>
+
+<!-- ─────────────── 03 INSIGHTS ─────────────── -->
+<section id="insights" class="insights">
+<div class="container">
+  <p class="label">03 · Insights contraintuitivos</p>
+  <p class="insights-intro">Lo que las conversaciones revelan sobre quienes preguntan: sus miedos, sus intereses y las estructuras de poder que reproducen sin advertirlo.</p>
+
+  <div class="two-col">
+
+    <!-- Columna A: miedos -->
+    <div>
+      <div class="col-header" style="color:var(--teal-dk)">Miedos disfrazados</div>
+
+      <div class="insight-card">
+        <span class="i-tag disfraz">disfraz</span>
+        <div class="i-title">La "ética" como eufemismo de vigilancia</div>
+        <div class="i-body">Casi ninguna pregunta indaga cómo enseñar mejor con IA. La mayoría pregunta cómo controlar que los estudiantes no hagan trampa. La palabra "ética" aparece constantemente, pero siempre orientada hacia la regulación del otro, nunca hacia la reflexión propia.</div>
+        <div class="i-quote">"¿Qué criterios debería establecer un docente para permitir el uso de herramientas de IA sin comprometer la autoría estudiantil?"</div>
+      </div>
+
+      <div class="insight-card">
+        <span class="i-tag miedo">miedo</span>
+        <div class="i-title">La institución como excusa primaria</div>
+        <div class="i-body">Varios usuarios abren la conversación describiendo su institución por sus limitaciones: lenta, burocrática, sin plata, católica. Esta contextualización defensiva precede la pregunta real. El miedo no es a la IA: es a tener que cambiar en un contexto que no cambia.</div>
+        <div class="i-quote">"mi institución es muy burocrática" → "quiero una propuesta para evadir la burocracia"</div>
+      </div>
+
+      <div class="insight-card">
+        <span class="i-tag ironia">curiosidad</span>
+        <div class="i-title">La pregunta que nadie más se atrevió a hacer</div>
+        <div class="i-body">Una sola entrada del corpus formula directamente lo que muchas otras rondan de manera implícita: la tensión entre el rendimiento académico y el uso de herramientas disponibles. Lejos de ser un dato negativo, es un recordatorio de que los espacios de consulta anónimos permiten que emerjan las dudas reales, las que más necesitan una respuesta pedagógica honesta.</div>
+        <div class="i-quote">"Quiero saber cómo puedo hacer trampa en mis trabajos académicos empleando la IA sin que me descubran"</div>
+      </div>
+
+      <div class="insight-card">
+        <span class="i-tag ironia">reflexión</span>
+        <div class="i-title">Quien estudia el fenómeno también lo vive</div>
+        <div class="i-body">Un profesional de acompañamiento psicológico recurre al chatbot para entender mejor el vínculo entre estudiantes y tecnología. Que el investigador utilice la misma herramienta que estudia no es una contradicción: es una señal de que la IA ya forma parte del ecosistema de trabajo de todos los perfiles, incluidos quienes reflexionan sobre sus efectos.</div>
+        <div class="i-quote">"Soy un profesional de acompañamiento psicológico interesado en identificar signos de dependencia... al uso excesivo de la tecnología y de la IA."</div>
+      </div>
+    </div>
+
+    <!-- Columna B: poder -->
+    <div>
+      <div class="col-header" style="color:var(--purple)">Estructuras de poder</div>
+
+      <div class="insight-card">
+        <span class="i-tag poder">poder</span>
+        <div class="i-title">El MEN le pide al bot que formule política pública</div>
+        <div class="i-body">Un usuario que se identifica como líder del Ministerio de Educación Nacional pregunta a un chatbot cómo formular políticas responsables de IA en educación. La entidad reguladora no sabe qué regular. No hay mayor síntoma de la velocidad a la que la IA desbordó las instituciones.</div>
+        <div class="i-quote">"Soy un líder de políticas educativas para el MEN estoy interesado en entender cómo tú me puedes apoyar la formulación de políticas públicas..."</div>
+      </div>
+
+      <div class="insight-card">
+        <span class="i-tag poder">poder</span>
+        <div class="i-title">Los estudiantes son objetos, no sujetos</div>
+        <div class="i-body">Docentes, directivos e investigadores preguntan sobre los estudiantes como blancos de regulación o riesgo a gestionar. Nadie pregunta qué quieren aprender los estudiantes con IA, ni cómo diseñar experiencias que los empoderen. El discurso pedagógico es de arriba hacia abajo sin excepción.</div>
+        <div class="i-quote" style="font-style:normal;color:rgba(255,255,255,.15)">Ausencia total de preguntas sobre agencia estudiantil en toda la base de datos.</div>
+      </div>
+
+      <div class="insight-card">
+        <span class="i-tag disfraz">disfraz</span>
+        <div class="i-title">Preguntar en tercera persona para no comprometerse</div>
+        <div class="i-body">Varios usuarios adoptan personas ficticias para preguntar: "Eres un investigador...", "Eres el director de currículo...". No se identifican directamente con la pregunta que hacen. Necesitan un avatar para acercarse a la IA. La máscara revela incomodidad con la propia posición profesional frente al tema.</div>
+        <div class="i-quote">"Eres un investigador en ciencias sociales o educación que está explorando el impacto de la inteligencia artificial generativa en los procesos educativos."</div>
+      </div>
+
+      <div class="insight-card">
+        <span class="i-tag miedo">tarea</span>
+        <div class="i-title">El aula de UNIMINUTO dentro de la base de datos</div>
+        <div class="i-body">Múltiples entradas idénticas sobre "estudiantes de UNIMINUTO" revelan un ejercicio colectivo de aula infiltrado en el corpus. Los "usuarios tomando decisiones institucionales" son en parte estudiantes cumpliendo una tarea. La base de datos mezcla actores reales con performances académicos.</div>
+        <div class="i-quote">"¿Cuáles estrategias se pueden utilizar para incentivar el uso ético y crítico de la IA en los estudiantes de UNIMINUTO?" — aparece 9 veces idéntica.</div>
+      </div>
+    </div>
+
+  </div>
+</div>
+</section>
+
+<div class="divider"></div>
+
+<!-- ─────────────── 04 CIERRE ─────────────── -->
+<section id="cierre" class="cierre">
+<div class="container">
+  <p class="label">04 · Lectura de fondo</p>
+  <p class="cierre-text">
+    La conversación colectiva sobre política de IA en universidades latinoamericanas <strong>no es un debate pedagógico</strong>. Es una negociación sobre quién controla a quién en un escenario que nadie entiende del todo. El chatbot no fue consultado como oráculo: fue usado como <strong>legitimador de decisiones ya tomadas</strong> o de miedos que no se pueden nombrar directamente.
+  </p>
+  <p class="cierre-text" style="margin-top:28px">
+    Que "aprendizaje" aparezca 3 veces y "estrategia" 16 no es un accidente de lenguaje. Es la radiografía de una institución que habla de educación <strong>para no hablar de poder</strong>.
+  </p>
+  <p class="cierre-text" style="margin-top:28px">
+    El miedo real que atraviesa estas conversaciones no apunta a la inteligencia artificial. Apunta a la <strong>burocracia</strong>: a esa distancia creciente entre quienes toman decisiones institucionales y quienes viven el día a día del aula. Docentes y coordinadores no le temen a los algoritmos; le temen a proponer un cambio que la estructura no va a acompañar, a depender de aprobaciones que nunca llegan, a quedar solos frente a una tecnología que avanza más rápido que cualquier resolución de consejo académico. La IA se convirtió en el espejo donde la institución ve, por primera vez con urgencia, <strong>la brecha entre sus directivas y su mundo real</strong>.
+  </p>
+  <p class="cierre-text" style="margin-top:28px">
+    Hay un silencio que también habla: en todo el corpus <strong>casi no aparecen preguntas técnicas</strong>. Nadie preguntó cómo funcionan los modelos de lenguaje, qué significa que una IA alucine, cómo se entrena un sistema con datos educativos o qué implica la propiedad de esas conversaciones. Y sin embargo, buena parte de las decisiones de política que se buscan tomar dependen exactamente de entender esos detalles. Diseñar lineamientos sobre algo que no se comprende en sus fundamentos produce normas que regulan la forma <strong>sin tocar el fondo</strong>. El debate sobre IA en educación todavía está pendiente de su propia alfabetización técnica.
+  </p>
+</div>
+</section>
+
+<!-- ─────────────── SLOT: MARÍA PREGUNTA ─────────────── -->
+<section id="maria-pregunta" class="slot-section">
+<div class="container">
+  <p class="label">· María pregunta ·</p>
+  <p class="slot-intro">El análisis habla de quienes preguntaron. Pero el corpus también permite dar vuelta la conversación. Estas son las preguntas que MarIA le haría de vuelta a sus usuarios.</p>
+  <div class="slot-machine">
+    <div class="slot-header">
+      <div class="slot-dot"></div>
+      <span class="slot-label-top">María pregunta para ti</span>
+    </div>
+    <div class="slot-window">
+      <div class="slot-reel idle" id="slotReel">Presiona el botón para comenzar</div>
+    </div>
+    <div class="slot-footer">
+      <span class="slot-counter" id="slotCounter">30 preguntas · orden aleatorio</span>
+      <button class="slot-btn" id="slotBtn">María pregunta</button>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ─────────────── 05 METODOLOGÍA ─────────────── -->
+<section id="metodologia" class="meta">
+<div class="container">
+  <p class="label">05 · Metodología y créditos</p>
+  <div class="meta-grid">
+    <div class="meta-item">
+      <div class="m-key">Fuente</div>
+      <div class="m-val">Base de datos de conversaciones exportada del sistema MarIA. Archivo: María_Crean01.xlsx</div>
+    </div>
+    <div class="meta-item">
+      <div class="m-key">Método</div>
+      <div class="m-val">Conteo de frecuencia léxica con eliminación de stopwords. Agrupación semántica manual. Análisis cualitativo de patrones de enunciación.</div>
+    </div>
+    <div class="meta-item">
+      <div class="m-key">Limitaciones</div>
+      <div class="m-val">El corpus incluye entradas de testeo y ejercicios de aula (caso UNIMINUTO). Los datos reflejan usuarios de un contexto específico y no son representativos del universo de IES colombianas.</div>
+    </div>
+    <div class="meta-item">
+      <div class="m-key">Período</div>
+      <div class="m-val">Conversaciones registradas hasta 2026. Análisis: mayo 2026.</div>
+    </div>
+    <div class="meta-item">
+      <div class="m-key">Herramienta</div>
+      <div class="m-val">MarIA · chatbot entrenado en políticas de IA para educación superior. Un producto RedUnete.</div>
+    </div>
+    <div class="meta-item">
+      <div class="m-key">Creadores</div>
+      <div class="m-val" style="line-height:1.9">
+        Fabian Herrera<br>
+        Martín Trujillo<br>
+        Gloria Cortes<br>
+        Yini Cárdenas<br>
+        María Elicenia Monsalve<br>
+        Juan Carlos Caro<br>
+        Erika Teresa Duque Bedoya<br>
+        Yojan Adolfo Botero Gómez
+      </div>
+    </div>
+    <div class="meta-item">
+      <div class="m-key">Desarrollo</div>
+      <div class="m-val"><a href="https://www.linkedin.com/in/fabian-herrera-4253654a/" target="_blank" rel="noopener" style="color:var(--yellow);text-decoration:none;border-bottom:1px solid rgba(240,255,129,.3);transition:border-color .2s">Fabian Herrera</a> · 2026</div>
+    </div>
+  </div>
+</div>
+</section>
+
+<!-- ─────────────── FOOTER ─────────────── -->
+<footer>
+<div class="container">
+  <div class="footer-row">
+    <span class="footer-brand">Conversaciones con María · 2026</span>
+    <span class="footer-note">Un producto RedUnete</span>
+  </div>
+</div>
+</footer>
+
+<script>
+const preguntas = [
+  "¿La institución sabe exactamente qué datos de sus estudiantes están siendo procesados por los modelos de IA que utiliza?",
+  "¿Quién es el propietario legal de las conversaciones que los estudiantes sostienen con herramientas de IA contratadas por la universidad?",
+  "¿Los contratos con proveedores de IA incluyen cláusulas que impidan que los datos institucionales se usen para reentrenar los modelos?",
+  "¿La política de IA distingue entre usar un modelo y ceder datos a quien lo opera?",
+  "¿Existe claridad sobre en qué país están alojados los servidores que procesan los datos educativos de la institución?",
+  "¿Qué mecanismo concreto tiene la universidad para auditar el comportamiento de un sistema de IA antes de adoptarlo?",
+  "¿Cuántos de los sistemas de IA que usa la institución tienen documentación pública sobre cómo fueron entrenados y con qué datos?",
+  "¿Quién en la estructura institucional tiene la autoridad —y la competencia técnica— para negociar las condiciones de un contrato de IA?",
+  "¿Existe una política de minimización de datos que se aplique también a las herramientas de IA que adopta la institución?",
+  "¿Se sabe si los modelos de IA recomendados a los estudiantes fueron entrenados con obras académicas sin autorización de sus autores?",
+  "¿Cómo garantiza la institución que un sistema de IA no reproduce ni amplifica sesgos presentes en su propia base de datos histórica?",
+  "¿Qué protocolo existe cuando un sistema de IA produce una decisión incorrecta que afecta la trayectoria de un estudiante?",
+  "¿Los lineamientos de gobernanza distinguen entre IA generativa, IA predictiva e IA de automatización?",
+  "¿Tienen los estudiantes el derecho real —no solo formal— de negarse a ser evaluados por un sistema algorítmico?",
+  "¿El comité que aprueba las políticas de IA incluye a alguien que entienda cómo funciona un modelo de lenguaje a nivel técnico?",
+  "¿Existe un inventario actualizado de todos los sistemas de IA en operación, incluyendo los de uso informal por parte de docentes?",
+  "¿Cómo se define 'consentimiento informado' cuando un estudiante usa una herramienta de IA cuya política de privacidad tiene 47 páginas?",
+  "¿La política de IA contempla el riesgo de dependencia tecnológica frente a un proveedor que puede cambiar sus condiciones en cualquier momento?",
+  "¿Cuánto tiempo retiene el proveedor de IA los datos de las sesiones estudiantiles y bajo qué condiciones los elimina?",
+  "¿La institución está en capacidad de migrar a otro sistema de IA sin perder datos, procesos ni continuidad académica?",
+  "¿Qué distancia existe entre la política de IA que la institución declara tener y lo que realmente ocurre en el aula cada semana?",
+  "¿Se ha evaluado si los sistemas de IA en uso cumplen con la normativa colombiana de protección de datos personales?",
+  "¿Cómo distingue la institución entre un error del sistema de IA y una decisión institucional cuando el resultado afecta a un estudiante?",
+  "¿Existe política sobre el uso de IA en procesos de selección, admisión o evaluación docente?",
+  "¿Qué ocurre con los datos de un estudiante que abandona la institución: siguen siendo accesibles para los sistemas de IA contratados?",
+  "¿La adopción de IA fue precedida por una evaluación de riesgos o por la presión institucional de no quedarse atrás?",
+  "¿La institución puede operar con normalidad si su proveedor principal de IA decide salir del mercado educativo o triplicar su precio?",
+  "¿Qué modelo de gobernanza se usa para tomar decisiones sobre IA: centralizado, distribuido o simplemente reactivo?",
+  "¿Existe claridad sobre qué significa 'explicabilidad' en un sistema de IA y si los que usa la institución la cumplen?",
+  "¿La institución está construyendo capacidades propias en IA o está subcontratando también su capacidad de entender lo que subcontrata?"
+];
+
+const reel    = document.getElementById('slotReel');
+const btn     = document.getElementById('slotBtn');
+const counter = document.getElementById('slotCounter');
+
+let shown = [];
+let spinning = false;
+
+function getRandom() {
+  if (shown.length === preguntas.length) shown = [];
+  let idx;
+  do { idx = Math.floor(Math.random() * preguntas.length); }
+  while (shown.includes(idx));
+  shown.push(idx);
+  return idx;
+}
+
+function setReel(text, cls) {
+  reel.className = 'slot-reel ' + cls;
+  reel.textContent = text;
+}
+
+function spin() {
+  if (spinning) return;
+  spinning = true;
+  btn.disabled = true;
+  counter.textContent = 'girando…';
+
+  // fases: ms entre cambios → de rápido a lento
+  const phases = [
+    {interval: 60,  count: 14},
+    {interval: 110, count: 8},
+    {interval: 180, count: 5},
+    {interval: 280, count: 3},
+    {interval: 420, count: 2},
+  ];
+
+  let phaseIdx = 0;
+  let phaseCount = 0;
+  const finalIdx = getRandom();
+
+  setReel('', 'spinning');
+
+  function tick() {
+    const phase = phases[phaseIdx];
+    // mostrar pregunta aleatoria durante el giro (no la final)
+    const tempIdx = Math.floor(Math.random() * preguntas.length);
+    reel.textContent = preguntas[tempIdx];
+    phaseCount++;
+
+    if (phaseCount >= phase.count) {
+      phaseIdx++;
+      phaseCount = 0;
+    }
+
+    if (phaseIdx < phases.length) {
+      setTimeout(tick, phases[phaseIdx].interval);
+    } else {
+      // aterrizar
+      setReel(preguntas[finalIdx], 'landing');
+      counter.textContent = shown.length + ' / 30 preguntas mostradas';
+      spinning = false;
+      btn.disabled = false;
+    }
+  }
+
+  setTimeout(tick, phases[0].interval);
+}
+
+btn.addEventListener('click', spin);
+</script>
+</body>
+</html>
